@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { createMeetingCommentDto } from "./dto/create-meeting.comment.dto";
 import { User } from "src/users/entities/user.entity";
 import { MeetingComment } from "./entities/meeting.comment.entity";
@@ -35,16 +35,58 @@ export class MeetingCommentService {
         return this.getComments(meeting_id);
     }
 
-    async getComments(meeting_id: number) {
-        return await this.meetingCommentRepository.find({ 
-            where : { meeting : {id: meeting_id}, parent: IsNull() },
-            relations: {
-                parent: true,
-                children: true,
-            },
-            order: {
-                createdAt: "ASC"
+    async getComments(meeting_id: number, user?: User) {
+        const result = await this.meetingCommentRepository.getComments(meeting_id);
+        const meeting_owner_id = result[0].meeting.created_by.id;
+
+        result.forEach((comment) => {
+            if(user===comment.user) {
+                comment['is_mine'] = true;
+            }else{
+                comment['is_mine'] = false;
             }
-        });
+            if(user){
+                if(user.id===meeting_owner_id) {
+                    comment['is_owner'] = true;
+                }
+                else{
+                    comment['is_owner'] = false;
+                }
+            }else{
+                comment['is_owner'] = false;
+            }
+            comment.children.forEach((child) => {
+                if(user===child.user) {
+                    child['is_mine'] = true;
+                }else{
+                    child['is_mine'] = false;
+                }
+                if(user){
+                    if(user.id===meeting_owner_id) {
+                        child['is_owner'] = true;
+                    }
+                    else{
+                        child['is_owner'] = false;
+                    }
+                }else{
+                    child['is_owner'] = false;
+                }
+            })
+        })
+        return result;
     }
+
+    async removeComment(comment_id: number, user: User) {
+        let comment = await this.meetingCommentRepository.findById(comment_id);
+
+        if(!comment) {
+            throw new NotFoundException();
+        }
+        if(comment.user.id !== user.id) {
+            throw new UnauthorizedException();
+        }
+        comment.content = '삭제된 메시지입니다.';
+        comment.user = null; 
+        return await this.meetingCommentRepository.save(comment);
+    } 
 }

@@ -1,4 +1,4 @@
-import { ForbiddenException, forwardRef, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { MeetingRepository } from './meeting.repository';
 import { Meeting } from './entities/meeting.entity';
@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 import { UsersRepository } from 'src/users/users.repository';
 import { plainToClass } from 'class-transformer';
 import { meetingReturnDto } from './dto/return-meeting.dto';
+import { UpdateMeetingDto } from './dto/update-meeting.dto';
 
 @Injectable()
 export class MeetingService {
@@ -97,8 +98,8 @@ export class MeetingService {
       }
     })
 
-    if(user) {
-      result.forEach((meeting) => {
+    result.forEach((meeting) => {
+      if(user) {
         if(meeting.meetingUsers.find((u) => u.id === user.id)) {
           meeting['is_joined'] = true;
         }
@@ -111,8 +112,18 @@ export class MeetingService {
         else{
           meeting['is_liked'] = false;
         }
-      })
-    }
+        if(meeting.created_by.id === user.id) {
+          meeting['is_mine'] = true;
+        }else{
+          meeting['is_mine'] = false;
+        }
+      }
+      else{
+        meeting['is_joined'] = false;
+        meeting['is_liked'] = false;
+        meeting['is_mine'] = false;
+      }
+    })
     const new_result = result.map((meeting)  => plainToClass(meetingReturnDto, meeting));
     
     return new_result;
@@ -148,9 +159,6 @@ export class MeetingService {
 
     if(!meeting) {
       throw new NotFoundException("미팅이 존재하지 않습니다.");
-    }
-    if(meeting.created_by.id === user.id) {
-      throw new ForbiddenException("모임을 만든 사용자입니다.");
     }
     const num = meeting.likedUsers.length;
     meeting.likedUsers = meeting.likedUsers.filter((u) => u.id !== user.id);
@@ -199,13 +207,36 @@ export class MeetingService {
     return await this.meetingRepository.save(meeting);
   }
 
+  async edit(user: User, updateMeetingDto: UpdateMeetingDto) {
+    let meeting = await this.findById(updateMeetingDto.meeting_id);
+    
+    if(!meeting) {
+      throw new NotFoundException("미팅이 존재하지 않습니다.");
+    }
+    if(meeting.created_by.id !== user.id) {
+      throw new UnauthorizedException("모임을 만든 사용자가 아닙니다.");
+    }
+    if(meeting.min_user < updateMeetingDto.min_user){
+      throw new ForbiddenException("최소 인원수를 줄여주세요.");
+    }
+    if(meeting.max_user > updateMeetingDto.max_user){
+      throw new ForbiddenException("최대 인원수를 늘려주세요.");
+    }
+
+    meeting.meeting_description = updateMeetingDto.meeting_description;
+    meeting.min_user = updateMeetingDto.min_user;
+    meeting.max_user = updateMeetingDto.max_user;
+
+    return await this.meetingRepository.save(meeting);
+  }
+
   async remove(user: User, id: number) {
     const meeting = await this.meetingRepository.findById(id);
     if(!meeting) {
       throw new NotFoundException("미팅이 존재하지 않습니다.");
     }
     if(meeting.created_by.id !== user.id) {
-      throw new ForbiddenException("모임을 만든 사용자가 아닙니다.");
+      throw new UnauthorizedException("모임을 만든 사용자가 아닙니다.");
     }
     if(meeting.user_count >= meeting.min_user) {
       throw new ForbiddenException("모임에 참가한 사용자가 최소인원 이상입니다.");

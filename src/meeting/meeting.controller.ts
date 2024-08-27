@@ -6,6 +6,7 @@ import { AuthGuard } from 'src/auth/security/auth.guard';
 import { MeetingIdDto } from './dto/meeting_id.dto';
 import { OptionalAuthGuard } from 'src/auth/security/auth.optionalguard';
 import { User } from 'src/users/entities/user.entity';
+import { UpdateMeetingDto } from './dto/update-meeting.dto';
 
 @ApiTags('Meeting')
 @Controller('meeting')
@@ -68,7 +69,6 @@ export class MeetingController {
   @Patch('/like')
   @ApiOperation({ summary: '모임 찜하기' })
   @ApiResponse({ status: 404, description: '미팅이 존재하지 않을 떄' })
-  @ApiResponse({ status: 403, description: '모임을 만든 사용자일 때' })
   @ApiResponse({ status: 401, description: '로그인 없을 시'})
   @ApiResponse({ status: 200, description: '이 외 정상적 응답' })
   @UseGuards(AuthGuard)
@@ -106,13 +106,27 @@ export class MeetingController {
   }
   */
 
+  @Patch('/edit')
+  @ApiOperation({ summary: '모임 수정(만든 사람만 가능)' })
+  @ApiResponse({ status: 404, description: '미팅이 존재하지 않을 떄' })
+  @ApiResponse({ status: 401.2, description: '모임을 만든 사용자가 아닐 때' })
+  @ApiResponse({ status: 401.1, description: '로그인 없을 시'})
+  @ApiResponse({ status: 403, description: '날짜가 올바르지 않을 때' })
+  @ApiResponse({ status: 200, description: '이 외 정상적 응답' })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('token')
+  async edit(@Req() req: Request, @Body() updateMeetingDto: UpdateMeetingDto) {
+    const { user }:any = req;
+    return await this.meetingService.edit(user, updateMeetingDto);
+  }
+
 
   @Delete('/delete')
   @ApiOperation({ summary: '모임 삭제(만든 사람만 가능)' })
   @ApiResponse({ status: 404, description: '미팅이 존재하지 않을 떄' })
-  @ApiResponse({ status: 403.1, description: '모임을 만든 사용자가 아닐 때' })
+  @ApiResponse({ status: 401.2, description: '모임을 만든 사용자가 아닐 때' })
   @ApiResponse({ status: 403.2, description: '모임에 참가한 사용자가 최소 인원 이상일 때' })
-  @ApiResponse({ status: 401, description: '로그인 없을 시'})
+  @ApiResponse({ status: 401.1, description: '로그인 없을 시'})
   @ApiResponse({ status: 200, description: '이 외 정상적 응답' })
   @UseGuards(AuthGuard)
   @ApiBearerAuth('token')

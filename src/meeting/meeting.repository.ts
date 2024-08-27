@@ -49,12 +49,11 @@ export class MeetingRepository extends Repository<Meeting> {
             }
         }
         
-
-        if(isnew) {
-            queryBuilder.orderBy('createdAt', 'ASC');
+        if(isnew===true) {
+            queryBuilder.orderBy('meeting.createdAt', 'DESC');
         }
         else{
-            queryBuilder.orderBy('meeting_date', 'ASC');
+            queryBuilder.orderBy('meeting.meeting_date', 'ASC');
         }
 
         return await queryBuilder.getMany();
