@@ -16,6 +16,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true}),
     TypeOrmModule.forRoot({
       type: 'mysql',

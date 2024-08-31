@@ -22,15 +22,15 @@ export class UsersController {
   @Post('/photo')
   @UseInterceptors(FileInterceptor('image',{
     fileFilter: (req: Request, file, cb: FileFilterCallback) => {
-      if(!file.mimetype.match(/image\/(jpg|jpeg|png)/)){
+      if(!file.mimetype.match(/\/(jpg)/)){
         return cb(new UnsupportedMediaTypeException(
-          'jpg, jpeg, png형식의 파일만 업로드 가능합니다.'
+          'jpg형식의 파일만 업로드 가능합니다.'
         ),);
       }
       cb(null, true);
   },
   storage: diskStorage({
-    destination: './profile/images',
+    destination: './images',
     filename: (req, file, cb) => {
       const extArray = file.mimetype.split('/');
 
@@ -38,7 +38,7 @@ export class UsersController {
       cb(null, date_now + '.' + extArray[extArray.length - 1]);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  //limits: { fileSize: 5 * 1024 * 1024 },
   }))
   @ApiOperation({ summary: '이미지 업로드//개발중' })
   @UseGuards(AuthGuard)

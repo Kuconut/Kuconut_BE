@@ -241,7 +241,6 @@ export class MeetingService {
     if(meeting.user_count >= meeting.min_user) {
       throw new ForbiddenException("모임에 참가한 사용자가 최소인원 이상입니다.");
     }
-    
     return this.meetingRepository.delete(id);
   }
 

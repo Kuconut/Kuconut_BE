@@ -27,10 +27,12 @@ export class Meeting{
     @JoinColumn()
     created_by: User;
 
-    @ManyToMany(() => User, (user) => user.my_meetings)
+    @ManyToMany(() => User, (user) => user.my_meetings, {cascade: true})
+    @JoinTable({ name: 'users_my_meetings_meeting'})
     meetingUsers: User[];
 
-    @ManyToMany(() => User, (user) => user.liked_meetings)
+    @ManyToMany(() => User, (user) => user.liked_meetings, {cascade: true})
+    @JoinTable({ name: 'users_liked_meetings_meeting' }) 
     likedUsers: User[];
 
     @Column({name : "user_count", type : 'int'})
