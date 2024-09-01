@@ -26,16 +26,27 @@ export class User {
 
     @Column({name: 'refreshTokenExpiresIn', type: 'timestamp', nullable: true})
     refreshTokenExpiresIn: Date;
+
+    @Column({name : 'profile_image', type : 'varchar', length : 255, nullable : true})
+    profile_image: string;
     
     @OneToMany(() => Meeting, (meeting) => meeting.created_by)
     made_meetings: Meeting[];
     
-    @ManyToMany(() => Meeting, (meeting) => meeting.meetingUsers)
-    @JoinTable()
+    @ManyToMany(() => Meeting, (meeting) => meeting.meetingUsers) 
+    // @JoinTable({ 
+    //   name: 'users_my_meetings_meeting',
+    //   joinColumn: { name: 'usersId', referencedColumnName: 'id' },
+    //   inverseJoinColumn: { name: 'meetingId', referencedColumnName: 'id' },
+    // })
     my_meetings: Meeting[];
 
     @ManyToMany(() => Meeting, (meeting) => meeting.likedUsers)
-    @JoinTable()
+    // @JoinTable({ 
+    //   name: 'users_liked_meetings_meeting',
+    //   joinColumn: { name: 'usersId', referencedColumnName: 'id' },
+    //   inverseJoinColumn: { name: 'meetingId', referencedColumnName: 'id' },
+    // })
     liked_meetings: Meeting[];
 
     @OneToMany(() => MeetingComment, (meeting) => meeting.user)

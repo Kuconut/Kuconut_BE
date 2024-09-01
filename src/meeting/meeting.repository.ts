@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Meeting } from './entities/meeting.entity';
 import { User } from 'src/users/entities/user.entity';
+import { get } from 'http';
+import { getHours } from 'date-fns';
 
 @Injectable()
 export class MeetingRepository extends Repository<Meeting> {
@@ -20,6 +22,8 @@ export class MeetingRepository extends Repository<Meeting> {
     async findMeeting(type: string, searchtype?: string, keyword?: string, startdate?: Date, eddate?: Date, isnew?: boolean, user?: User): Promise<Meeting[]> {
         const current_date = new Date();
         let stdate = new Date(startdate);
+        current_date.setHours(getHours(current_date) + 9);
+        stdate.setHours(getHours(stdate) + 9);
         const queryBuilder = this.repository.createQueryBuilder('meeting')
 
         queryBuilder.leftJoinAndSelect('meeting.created_by', 'created_by');
@@ -49,7 +53,7 @@ export class MeetingRepository extends Repository<Meeting> {
             }
         }
         
-        if(isnew===true) {
+        if(isnew) {
             queryBuilder.orderBy('meeting.createdAt', 'DESC');
         }
         else{
@@ -61,6 +65,7 @@ export class MeetingRepository extends Repository<Meeting> {
 
     async findUserMeetings(user: User, type:string, iscoming: boolean): Promise<Meeting[]> {
         const currentDate = new Date();
+        currentDate.setHours(getHours(currentDate) + 9);
         const queryBuilder = this.repository.createQueryBuilder('meeting')
         queryBuilder.leftJoinAndSelect('meeting.created_by', 'created_by');
         queryBuilder.leftJoinAndSelect('meeting.meetingUsers', 'meetingUsers');
@@ -89,6 +94,7 @@ export class MeetingRepository extends Repository<Meeting> {
 
     async findLikedMeetings(user: User, type:string): Promise<Meeting[]> {
         const currentDate = new Date();
+        currentDate.setHours(getHours(currentDate) + 9);
         const queryBuilder = this.repository.createQueryBuilder('meeting')
         queryBuilder.leftJoinAndSelect('meeting.created_by', 'created_by');
         queryBuilder.leftJoinAndSelect('meeting.meetingUsers', 'meetingUsers');

@@ -23,7 +23,14 @@ export class UsersService {
     user.password = signupDto.password; 
     user.email = signupDto.email;
     user.nickname = signupDto.nickname;
+    user.profile_image = 'https://storage.googleapis.com/onboard_bucket/basic_image.png';
 
+    return await this.userRepository.save(user);
+  }
+
+  async signout(user: User) {
+    user.refreshtoken = null;
+    user.refreshTokenExpiresIn = null;
     return await this.userRepository.save(user);
   }
 
@@ -65,6 +72,11 @@ export class UsersService {
       const expires = new Date(now.getTime() + 24*60*60*1000*180);
       user.refreshTokenExpiresIn = expires;
     }
+    return await this.userRepository.save(user);
+  }
+
+  async uploadProfileImage(user: User, profile: string) {
+    user.profile_image = profile;
     return await this.userRepository.save(user);
   }
 

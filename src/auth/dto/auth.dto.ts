@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Length, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, Length, Matches, MaxLength } from "class-validator";
 
 export namespace AuthDto {
     export class checkID {
@@ -7,8 +7,10 @@ export namespace AuthDto {
             example: 'honggildong',
             description: 'user_id',
         })
-        @Length(4, 20)
+        @IsNotEmpty()
         @IsString()
+        @Length(4, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '아이디는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_id: string;
     }
 
@@ -17,8 +19,10 @@ export namespace AuthDto {
             example: '12345678!',
             description: 'user_password',
         })
-        @Length(4, 20)
+        @IsNotEmpty()
         @IsString()
+        @Length(8, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '비밀번호는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_password: string;
     }
 
@@ -48,7 +52,10 @@ export namespace AuthDto {
             example: "honggildong",
             description: 'user_id',
         })
+        @IsNotEmpty()
         @IsString()
+        @Length(4, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '아이디는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_id: string;
 
         @ApiProperty({
@@ -63,7 +70,10 @@ export namespace AuthDto {
             example: "honggildong",
             description: 'user_id',
         })
+        @IsNotEmpty()
         @IsString()
+        @Length(4, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '아이디는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_id: string;
 
         @ApiProperty({
@@ -85,15 +95,20 @@ export namespace AuthDto {
             example: 'honggildong',
             description: 'user_id',
         })
+        @IsNotEmpty()
         @IsString()
+        @Length(4, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '아이디는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_id: string;
 
         @ApiProperty({
             example: '1q2w3e4r',
             description: 'password',
         })
+        @IsNotEmpty()
         @IsString()
-        @Length(4, 20)
+        @Length(8, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '비밀번호는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         password: string;
 
         @ApiProperty({
@@ -109,8 +124,10 @@ export namespace AuthDto {
             example: '홍길동123',
             description: 'nickname',
         })
+        @IsNotEmpty()
         @IsString()
-        @Length(4, 20)
+        @Length(2, 10)
+        @Matches(/^[a-zA-Z0-9가-힣!@#$^*?_%]+$/, { message: '닉네임은 영문자, 숫자, 한글, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         nickname: string;
     }
 
@@ -119,16 +136,20 @@ export namespace AuthDto {
             example: 'honggildong',
             description: 'user_id',
         })
+        @IsNotEmpty()
         @IsString()
         @Length(4, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '아이디는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         user_id: string;
 
         @ApiProperty({
             example: '1q2w3e4r',
             description: 'password',
         })
+        @IsNotEmpty()
         @IsString()
-        @Length(4, 20)
+        @Length(8, 20)
+        @Matches(/^[a-zA-Z0-9!@#$^*?_%]+$/, { message: '비밀번호는 영문자, 숫자, 그리고 !@#$^*?_% 만 포함할 수 있습니다.' })
         password: string;
     }
 

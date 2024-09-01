@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './security/auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './dto/auth.dto';
+import { Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,6 +24,17 @@ export class AuthController {
   @ApiResponse({ status: 200, description: '그 외 정상적 응답' })
   signup(@Body() signupDto: AuthDto.SignUp) {
     return this.authService.signup(signupDto);
+  }
+
+  @Post('Signout')
+  @ApiOperation({ summary: '로그아웃' })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('token')
+  async signout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const { user }:any = req;
+    await this.authService.signout(user);
+//    res.clearCookie('refreshToken');
+    return res.send({ message: 'logout success' });
   }
 
   @Post('Refresh')

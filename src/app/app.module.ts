@@ -35,7 +35,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
       keepConnectionAlive: true,
-      timezone: '+09:00',
+      timezone: 'UTC',
     }),
     CacheModule.register({
       ttl: 60000,

@@ -33,7 +33,8 @@ export class MeetingService {
     if(createMeetingDto.min_user > createMeetingDto.max_user || createMeetingDto.min_user < 2) {
       throw new ForbiddenException("인원수 설정이 올바르지 않습니다.");
     }
-
+    kr_meeting_Date.setHours(kr_meeting_Date.getHours() + 9);
+    kr_deadline.setHours(kr_deadline.getHours() + 9);
     meeting.meeting_name = createMeetingDto.meeting_name;
     meeting.meeting_description = createMeetingDto.meeting_description;
     meeting.type = createMeetingDto.type;
@@ -47,7 +48,7 @@ export class MeetingService {
     }
     */
     meeting.is_flash = false;
-
+    
 
     meeting.created_by = user;
     meeting.meetingUsers = [user];
@@ -57,7 +58,7 @@ export class MeetingService {
     meeting.min_user = createMeetingDto.min_user;
     meeting.max_user = createMeetingDto.max_user;
     meeting.user_count = 1;
-
+    console.log(meeting);
     return await this.meetingRepository.save(meeting);
   }
 
@@ -132,6 +133,7 @@ export class MeetingService {
   async joinMeeting(user: User, meeting_id: number) {
     let meeting = await this.meetingRepository.findById(meeting_id);
     const now = new Date();
+    now.setHours(now.getHours() + 9);
 
     if(meeting.deadline < now) {
       throw new ForbiddenException();

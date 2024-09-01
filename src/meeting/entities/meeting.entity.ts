@@ -27,12 +27,20 @@ export class Meeting{
     @JoinColumn()
     created_by: User;
 
-    @ManyToMany(() => User, (user) => user.my_meetings, {cascade: true})
-    @JoinTable({ name: 'users_my_meetings_meeting'})
+    @ManyToMany(() => User, (user) => user.my_meetings, { cascade: true })
+    @JoinTable({ 
+        name: 'users_my_meetings_meeting',
+         joinColumn: { name: 'meetingId', referencedColumnName: 'id' },
+         inverseJoinColumn: { name: 'usersId', referencedColumnName: 'id' },
+    })
     meetingUsers: User[];
 
-    @ManyToMany(() => User, (user) => user.liked_meetings, {cascade: true})
-    @JoinTable({ name: 'users_liked_meetings_meeting' }) 
+    @ManyToMany(() => User, (user) => user.liked_meetings, { cascade: true })
+    @JoinTable({ 
+        name: 'users_liked_meetings_meeting',
+        joinColumn: { name: 'meetingId', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'usersId', referencedColumnName: 'id' },
+    }) 
     likedUsers: User[];
 
     @Column({name : "user_count", type : 'int'})
